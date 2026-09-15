@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G-EnergySense AI | Gujarat State Grid Command Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <style>
+        body {
+            background-color: #060a12;
+            color: #f8fafc;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(9, 14, 24, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+        }
+        #map {
+            height: 480px;
+            border-radius: 10px;
+            background: #090e18;
+        }
+        .pulse-red {
+            animation: pulse-red-anim 2s infinite;
+        }
+        @keyframes pulse-red-anim {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b1120; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-6">
+
+    <!-- TOP HEADER -->
+    <header class="glass-panel p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-amber-500/20 border border-amber-500/40 rounded-xl text-amber-400 text-2xl">
+                <i class="fa-solid fa-bolt-lightning"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white">G-EnergySense AI</h1>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> LIVE SCADA
+                    </span>
+                    <span class="px-2 py-0.5 rounded text-xs font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                        Django 6 Enterprise
+                    </span>
+                </div>
+                <p class="text-xs text-slate-400 mt-0.5">
+                    Gujarat State Load Despatch Centre (SLDC Gotri, Vadodara) • Multi-District Operational Command
+                </p>
+            </div>
+        </div>
+
+        <!-- System Clock & Status -->
+        <div class="flex items-center gap-3 text-right">
+            <div class="hidden sm:block text-xs text-slate-400">
+                <div>TIMESTAMP: <span class="text-slate-200 font-mono">{{ latest_timestamp }}</span></div>
+                <div>GRID ZONE: <span class="text-slate-200 font-medium">Western Regional Grid (WR-Gujarat)</span></div>
+            </div>
+            <a href="/admin/" target="_blank" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved"></i> Admin Portal
+            </a>
+            <a href="/api/v1/grid/live/" target="_blank" class="px-3 py-1.5 text-xs font-medium bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 rounded-lg border border-cyan-500/40 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-code"></i> REST API
+            </a>
+        </div>
+    </header>
+
+    <!-- LIVE TELEMETRY KPI METRICS BAR -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div class="glass-panel p-4 border-l-4 border-l-blue-500">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">State Total Demand</div>
+            <div class="text-2xl font-bold text-white tracking-tight">{{ total_state_demand_mw|floatformat:0 }} <span class="text-sm font-normal text-slate-400">MW</span></div>
+            <div class="text-[11px] text-blue-400 mt-1 font-medium"><i class="fa-solid fa-gauge-high mr-1"></i>10 Monitored Hubs</div>
+        </div>
+
+        <div class="glass-panel p-4 border-l-4 border-l-emerald-500">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Renewable Generation</div>
+            <div class="text-2xl font-bold text-emerald-400 tracking-tight">{{ total_renewable_mw|floatformat:0 }} <span class="text-sm font-normal text-slate-400">MW</span></div>
+            <div class="text-[11px] text-emerald-500 mt-1 font-medium"><i class="fa-solid fa-solar-panel mr-1"></i>{{ renewable_share_pct }}% of Total Load</div>
+        </div>
+
+        <div class="glass-panel p-4 border-l-4 border-l-amber-500">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Net Demand (Duck Curve)</div>
+            <div class="text-2xl font-bold text-amber-400 tracking-tight">{{ net_demand_mw|floatformat:0 }} <span class="text-sm font-normal text-slate-400">MW</span></div>
+            <div class="text-[11px] text-amber-500 mt-1 font-medium"><i class="fa-solid fa-chart-area mr-1"></i>Avoided CO₂: {{ avoided_co2_hr }} t/h</div>
+        </div>
+
+        <div class="glass-panel p-4 border-l-4 {% if avg_frequency_hz < 49.95 %}border-l-red-500{% else %}border-l-emerald-500{% endif %}">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Grid Frequency</div>
+            <div class="text-2xl font-bold tracking-tight {% if avg_frequency_hz < 49.95 %}text-red-400{% else %}text-emerald-400{% endif %}">
+                {{ avg_frequency_hz }} <span class="text-sm font-normal text-slate-400">Hz</span>
+            </div>
+            <div class="text-[11px] mt-1 font-medium {% if avg_frequency_hz < 49.95 %}text-red-400{% else %}text-slate-400{% endif %}">
+                <i class="fa-solid fa-wave-square mr-1"></i>IEGC Target: 50.00 Hz
+            </div>
+        </div>
+
+        <div class="glass-panel p-4 border-l-4 border-l-purple-500">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Power Factor & THD</div>
+            <div class="text-2xl font-bold text-purple-300 tracking-tight">{{ avg_power_factor }} <span class="text-sm font-normal text-slate-400">PF</span></div>
+            <div class="text-[11px] text-purple-400 mt-1 font-medium"><i class="fa-solid fa-bolt mr-1"></i>IEEE 519 THD: {{ avg_thd_pct }}%</div>
+        </div>
+
+        <div class="glass-panel p-4 border-l-4 {% if dsm_exposure_lakhs > 0 %}border-l-red-500{% else %}border-l-cyan-500{% endif %}">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">CERC DSM Risk</div>
+            <div class="text-2xl font-bold tracking-tight {% if dsm_exposure_lakhs > 0 %}text-red-400{% else %}text-cyan-400{% endif %}">
+                ₹ {{ dsm_exposure_lakhs }} <span class="text-sm font-normal text-slate-400">L</span>
+            </div>
+            <div class="text-[11px] mt-1 font-medium {% if dsm_exposure_lakhs > 0 %}text-red-400{% else %}text-slate-400{% endif %}">
+                <i class="fa-solid fa-triangle-exclamation mr-1"></i>Regulatory Penalty
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN TWO-COLUMN WORKSPACE -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+
+        <!-- LEFT COLUMN (7 cols): Map & Leaderboard -->
+        <div class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Interactive Gujarat Map -->
+            <div class="glass-panel p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-amber-400"></i> Interactive Gujarat Geospatial SCADA Map
+                    </h2>
+                    <span class="text-xs text-slate-400">Click markers for feeder telemetry</span>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- District Demand Ranking Leaderboard -->
+            <div class="glass-panel p-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-ranking-star text-blue-400"></i> Live Gujarat District Demand Leaderboard
+                </h2>
+                <div class="space-y-2.5">
+                    {% for item in leaderboard %}
+                    <div class="flex items-center gap-3 text-xs">
+                        <span class="w-5 text-right font-bold text-slate-500">#{{ forloop.counter }}</span>
+                        <div class="w-32 truncate font-semibold text-slate-200">
+                            {{ item.name }}
+                            <span class="text-[10px] block font-normal text-slate-400">{{ item.discom }} • {{ item.city }}</span>
+                        </div>
+                        <div class="flex-1 bg-slate-800 rounded-full h-3 overflow-hidden">
+                            <div class="bg-gradient-to-r from-blue-600 to-amber-500 h-full rounded-full transition-all duration-500" 
+                                 style="width: {% widthratio item.demand_mw 4200 100 %}%;"></div>
+                        </div>
+                        <div class="w-24 text-right font-mono font-bold text-slate-200">
+                            {{ item.demand_mw|floatformat:0 }} MW
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN (5 cols): AI Analytics, Forecaster & IBM Bob Copilot -->
+        <div class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- 4-Hour Forward Demand Forecaster -->
+            <div class="glass-panel p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-400"></i> AI Multi-Hour Load Forecaster
+                    </h2>
+                    <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Peak Ceiling: 21,500 MW
+                    </span>
+                </div>
+                <div class="h-44 w-full">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-slate-800 text-center">
+                    {% for fc in forecasts %}
+                    <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-800">
+                        <div class="text-[10px] text-slate-400 font-mono">{{ fc.hours_ahead }}</div>
+                        <div class="text-sm font-bold text-slate-200">{{ fc.predicted_load_mw|floatformat:0 }} MW</div>
+                        <div class="text-[10px] font-semibold {% if fc.peak_alert %}text-red-400{% else %}text-emerald-400{% endif %}">
+                            {% if fc.peak_alert %}⚠️ ALERT{% else %}🟢 NOMINAL{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Active Anomalies & Dispatch Directives -->
+            <div class="glass-panel p-4">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-red-400"></i> Active Anomalies & Directives
+                </h2>
+                <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    {% for anom in anomalies %}
+                    <div class="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs flex flex-col gap-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-200">{{ anom.district.name }} ({{ anom.district.city_hub }})</span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold 
+                                {% if anom.severity == 'CRITICAL' %}bg-red-500/20 text-red-400 border border-red-500/30
+                                {% elif anom.severity == 'HIGH' %}bg-amber-500/20 text-amber-400 border border-amber-500/30
+                                {% else %}bg-blue-500/20 text-blue-400 border border-blue-500/30{% endif %}">
+                                {{ anom.severity }} (+{{ anom.deviation_pct|floatformat:1 }}%)
+                            </span>
+                        </div>
+                        <div class="text-slate-400 text-[11px]"><i class="fa-solid fa-microchip text-slate-500 mr-1"></i>{{ anom.root_cause }}</div>
+                    </div>
+                    {% empty %}
+                    <div class="text-xs text-slate-400 p-2">All district feeders operating within seasonal baselines.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- IBM Bob Autonomous Grid Copilot Panel -->
+            <div class="glass-panel p-4 flex flex-col h-[400px]">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></div>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200">IBM Bob Grid Copilot</h2>
+                    </div>
+                    <button id="downloadBriefBtn" onclick="downloadCurrentBrief()" class="hidden text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1">
+                        <i class="fa-solid fa-download"></i> Save Brief (.md)
+                    </button>
+                </div>
+
+                <!-- Chat message history -->
+                <div id="chatHistory" class="flex-1 overflow-y-auto py-3 space-y-3 pr-1 text-xs">
+                    <div class="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60 text-slate-300">
+                        👋 <strong>Hello Operator!</strong> I am your autonomous SLDC Copilot. I have live telemetry for all 10 Gujarat districts and can provide instant feeder audits, duck curve analysis, and operational incident briefs.
+                    </div>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="py-2 flex flex-wrap gap-1.5 border-t border-slate-800">
+                    <button onclick="sendPrompt('Audit Anand & Kheda (CHARUSAT Zone)')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 rounded border border-slate-700 transition">
+                        📍 Anand / CHARUSAT
+                    </button>
+                    <button onclick="sendPrompt('Analyze Surat industrial surge')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 rounded border border-slate-700 transition">
+                        🏭 Surat Surge
+                    </button>
+                    <button onclick="sendPrompt('Check evening solar ramp-down rate')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-[11px] text-slate-300 rounded border border-slate-700 transition">
+                        🦆 Solar Duck Curve
+                    </button>
+                    <button onclick="sendPrompt('Generate SLDC Executive Incident Brief')" class="px-2 py-1 bg-amber-600/30 hover:bg-amber-600/50 text-[11px] text-amber-300 rounded border border-amber-500/40 transition">
+                        📋 Executive Brief
+                    </button>
+                </div>
+
+                <!-- Input box -->
+                <div class="flex gap-2 pt-2">
+                    <input type="text" id="userInput" placeholder="Ask IBM Bob Copilot about Gujarat Grid..." 
+                           onkeydown="if(event.key === 'Enter') sendUserQuery()"
+                           class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+                    <button onclick="sendUserQuery()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-medium text-xs rounded-lg transition flex items-center gap-1">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="glass-panel p-4 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 mt-auto">
+        <div>Developed for <strong>IBM Bob AI Innovation Hackathon 2026</strong> • CHARUSAT Zone Monitoring</div>
+        <div class="flex items-center gap-4">
+            <span>Grid Dispatch: <strong>SLDC Gotri, Vadodara</strong></span>
+            <span>Transmission: <strong>GETCO</strong></span>
+            <span>DISCOMs: <strong>UGVCL • DGVCL • MGVCL • PGVCL</strong></span>
+        </div>
+    </footer>
+
+    <!-- SCRIPT DATA & INITIALIZATION -->
+    <script>
+        // District Data from Django Context
+        const districtsData = {{ districts_json|safe }};
+        let lastGeneratedBrief = null;
+
+        // 1. Initialize Leaflet Gujarat Map
+        const map = L.map('map', {
+            center: [22.45, 71.85],
+            zoom: 7,
+            zoomControl: true,
+            attributionControl: false
+        });
+
+        // Dark-mode Map Tiles (CartoDB DarkMatter)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            subdomains: 'abcd'
+        }).addTo(map);
+
+        // Add Circle Markers for 10 Hubs
+        districtsData.forEach(d => {
+            const isCritical = d.frequency < 49.95 || d.thd > 5.5;
+            const color = isCritical ? '#ef4444' : '#3b82f6';
+            const fillColor = isCritical ? '#f87171' : '#60a5fa';
+
+            const radius = Math.max(12, Math.min(30, d.demand_mw / 140));
+
+            const circle = L.circleMarker([d.lat, d.lon], {
+                color: color,
+                weight: 2,
+                fillColor: fillColor,
+                fillOpacity: 0.65,
+                radius: radius
+            }).addTo(map);
+
+            const popupContent = `
+                <div style="font-family:sans-serif; min-width:180px; color:#0f172a;">
+                    <div style="font-weight:bold; font-size:14px; margin-bottom:2px;">${d.name}</div>
+                    <div style="font-size:11px; color:#64748b; margin-bottom:6px;">${d.city} [${d.discom}]</div>
+                    <div style="font-size:12px; line-height:1.4;">
+                        ⚡ <strong>Demand:</strong> ${d.demand_mw.toLocaleString()} MW<br/>
+                        🌱 <strong>Renewable:</strong> ${d.renewable_mw.toLocaleString()} MW<br/>
+                        〰️ <strong>Frequency:</strong> ${d.frequency} Hz<br/>
+                        🔌 <strong>Power Factor:</strong> ${d.pf}<br/>
+                        📊 <strong>THD:</strong> ${d.thd}%<br/>
+                        🏭 <em>${d.industry}</em>
+                    </div>
+                </div>
+            `;
+            circle.bindPopup(popupContent);
+        });
+
+        // 2. Initialize Chart.js Forecaster Curve
+        const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+        new Chart(forecastCtx, {
+            type: 'line',
+            data: {
+                labels: ['Now', '+1h', '+2h', '+3h', '+4h'],
+                datasets: [
+                    {
+                        label: 'Projected Demand (MW)',
+                        data: [
+                            {{ total_state_demand_mw|floatformat:0 }},
+                            {% for fc in forecasts %}{{ fc.predicted_load_mw|floatformat:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                        ],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#10b981'
+                    },
+                    {
+                        label: 'Peak Ceiling (21,500 MW)',
+                        data: [21500, 21500, 21500, 21500, 21500],
+                        borderColor: '#ef4444',
+                        borderDash: [5, 5],
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#94a3b8', font: { size: 10 } }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#1e293b' },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: '#1e293b' },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // 3. IBM Bob Copilot API Interaction
+        function sendPrompt(text) {
+            document.getElementById('userInput').value = text;
+            sendUserQuery();
+        }
+
+        async function sendUserQuery() {
+            const input = document.getElementById('userInput');
+            const query = input.value.trim();
+            if (!query) return;
+
+            const chatHistory = document.getElementById('chatHistory');
+
+            // Append User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = "bg-cyan-900/40 border border-cyan-700/60 p-2.5 rounded-lg text-cyan-200 self-end ml-8";
+            userMsg.innerHTML = `<strong>You:</strong> ${query}`;
+            chatHistory.appendChild(userMsg);
+            input.value = "";
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // Typing indicator
+            const botMsg = document.createElement('div');
+            botMsg.className = "bg-slate-800/80 border border-slate-700 p-2.5 rounded-lg text-slate-300";
+            botMsg.innerHTML = `<em>IBM Bob is auditing grid telemetry...</em>`;
+            chatHistory.appendChild(botMsg);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            try {
+                const res = await fetch('/api/v1/copilot/chat/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                const data = await res.json();
+
+                // Format response
+                const formatted = data.response.replace(/\n/g, '<br/>');
+                botMsg.innerHTML = `🤖 <strong>IBM Bob:</strong><br/>${formatted}`;
+
+                if (data.markdown_brief) {
+                    lastGeneratedBrief = data.markdown_brief;
+                    document.getElementById('downloadBriefBtn').classList.remove('hidden');
+                }
+            } catch (err) {
+                botMsg.innerHTML = `⚠️ <em>Error contacting copilot service: ${err.message}</em>`;
+            }
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function downloadCurrentBrief() {
+            if (!lastGeneratedBrief) return;
+            const blob = new Blob([lastGeneratedBrief], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `SLDC_Executive_Incident_Brief_${new Date().toISOString().slice(0,10)}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

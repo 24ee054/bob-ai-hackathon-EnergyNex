@@ -52,3 +52,15 @@ jobs:
               
           print('\nAll submission validation checks passed successfully!')
           "
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Pipeline Unit Tests
+        run: |
+          python -m unittest tests/test_grid_pipeline.py
+
+      - name: Run Django Test Suite
+        run: |
+          python manage.py test

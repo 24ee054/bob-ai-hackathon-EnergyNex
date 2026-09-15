@@ -32,10 +32,46 @@ It monitors the electrical grid from the state level down to **10 major Gujarat 
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Dual-Stack Deployment)
 
+### Option A: Launch Django 6 Enterprise SLDC Portal (Recommended)
 ```bash
 cd "C:\Users\ranak\Desktop\CHARUSAT\SEM 5\IBM_BOB_HACKATHON"
 pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_gujarat_grid   # Populates 6,700+ telemetry rows & 10 hubs
+python manage.py runserver
+```
+- **Web Dashboard:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (Interactive Leaflet Map, Live Charts & IBM Bob Copilot)
+- **Django Admin Portal:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+- **Live REST API:** [http://127.0.0.1:8000/api/v1/grid/live/](http://127.0.0.1:8000/api/v1/grid/live/)
+
+### Option B: Launch Streamlit Operational Center
+```bash
 streamlit run src/app.py
 ```
+- **Streamlit App:** [http://localhost:8501](http://localhost:8501)
+
+---
+
+## 🧪 Automated Testing
+
+Run the full dual-stack test suite:
+```bash
+# 1. Pipeline ML & Analytical tests
+python -m unittest tests/test_grid_pipeline.py
+
+# 2. Django Model, View & REST API tests
+python manage.py test
+```
+
+---
+
+## 🌐 Enterprise REST API Endpoints
+
+- `GET /api/v1/grid/live/` — Live Gujarat state demand, renewable mix, and grid frequency.
+- `GET /api/v1/districts/` — Telemetry across all 10 monitored district hubs.
+- `GET /api/v1/anomalies/` — Active feeder anomalies with physical root-cause attribution.
+- `GET /api/v1/forecast/` — 1-to-4 hour forward load projections with 21,500 MW peak alerts.
+- `GET /api/v1/directives/` — Automated SLDC dispatch directives.
+- `POST /api/v1/copilot/chat/` — Conversational IBM Bob Copilot & Executive Brief generator.
