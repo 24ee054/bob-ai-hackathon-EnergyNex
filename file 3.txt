@@ -1,0 +1,153 @@
+# Solution Overview - EnergyNex & GridOpt Platform
+
+## Core Solution Architecture
+
+**EnergyNex** (powered by GridOpt AI engine) combines smart facility telemetry, grid demand forecasting, unsupervised anomaly detection, feature attribution root cause analysis, load balancing optimization, and automated operational brief generation.
+
+$$\text{DEMAND DATA} \rightarrow \text{AI FORECAST} \rightarrow \text{DEMAND SPIKE} \rightarrow \text{GRID RISK} \rightarrow \text{LOAD BALANCING} \rightarrow \text{RENEWABLE ANOMALY} \rightarrow \text{ROOT CAUSE} \rightarrow \text{CURTAILMENT PLAN} \rightarrow \text{AI BRIEF}$$
+
+### Key Components:
+1. **Demand Spike Forecasting (`src/ai/demand_forecast.py`):** Trains `RandomForestRegressor` to predict 24h grid load (10.15 GW at 18:00, +16.0% spike).
+2. **Renewable Anomaly Detection (`src/ai/anomaly_detection.py`):** Uses performance ratios & `IsolationForest` to flag underperforming solar/wind assets (Solar Farm A -21.7% drop).
+3. **Explainable Root Cause Engine (`src/ai/root_cause.py`):** Computes feature contributions (52% low irradiance, 23% temp derating, 18% inverter strain).
+4. **Load Balancing Engine (`src/ai/load_optimization.py`):** Recommends shifting 350 MW flexible industrial demand and reducing 120 MW EV charging.
+5. **Curtailment Reduction Planner (`src/ai/curtailment.py`):** Absorbs 300 MW clean energy, lowering curtailment from 420 MW to 120 MW.
+6. **Integrated AI Operator Brief (`src/ai/operator_brief.py`):** Compiles an operational brief for grid dispatchers.
+it is solution-overview
+
+# Setup & Execution Guide — EnergyNex
+
+### Smart Energy Monitoring + Grid Load Optimisation + Renewable Energy Intelligence
+
+## 📋 System Prerequisites
+* **Python:** 3.10+ (tested on Python 3.11/3.12)
+* **Node.js:** 18+ (tested on Node.js v20+)
+* **OS:** Windows, macOS, or Linux
+
+---
+
+## 🛠️ Step-by-Step Installation
+
+### 1. Install Node.js & Python Dependencies
+```powershell
+npm install
+pip install -r requirements.txt
+```
+
+### 2. Verify AI & Data Pipeline
+```powershell
+$env:PYTHONPATH="."; $env:PYTHONIOENCODING="utf-8"; python -c "from src.pipeline import run_full_pipeline; run_full_pipeline()"
+```
+
+### 3. Start Python FastAPI Backend Server (`:8000`)
+```powershell
+$env:PYTHONPATH="."; uvicorn src.ai.backend:app --host 0.0.0.0 --port 8000
+```
+* API Health Check: `http://localhost:8000/`
+* Swagger Interactive API Docs: `http://localhost:8000/docs`
+
+### 4. Start React Operator Control Center (`:3000`)
+```powershell
+npm run dev
+```
+* Open **`http://localhost:3000`** in your browser (Main Judge-Facing Control Center).
+
+### 5. (Optional) Start Streamlit Analytics Lab (`:8501`)
+```powershell
+streamlit run app.py --server.headless true --server.port 8501
+```
+* Open **`http://localhost:8501`** for supporting AI analytics and telemetry lab.
+
+---
+
+## 🧪 Verification & Troubleshooting
+
+* **Build React Frontend for Production:** `npm run build`
+* **Test End-to-End Pipeline:** `python -c "from src.pipeline import run_full_pipeline; run_full_pipeline()"`
+* **Check Backend Status:** `curl http://localhost:8000/`
+it is setup-guide
+
+# Problem Statement — EnergyNex
+
+### Smart Energy Monitoring + Grid Load Optimisation + Renewable Energy Intelligence
+
+## ⚡ The Clean Energy Curtailment & Grid Stability Challenge
+
+In 2023, the United States curtailed approximately **8 Terawatt-hours (TWh)** of clean renewable electricity because transmission grids could not absorb all available solar and wind generation. At the same time, unexpected electricity demand spikes cause severe grid frequency instability and thermal overload.
+
+### Key Operational Gaps Today:
+1. **Limited Real-Time Decision Support:** Operators lack unified visibility into upcoming demand spikes alongside renewable generation capacity.
+2. **Unidentified Renewable Asset Degradation:** Underperforming solar farms and wind turbines often go undetected until significant clean power is lost.
+3. **Black-Box Failure Causes:** Operators cannot easily determine *why* a renewable asset is underperforming (e.g., distinguishing between weather clouding vs inverter thermal throttling).
+4. **Massive Clean Energy Wastage:** Grids resort to curtailing (switching off) clean solar and wind generation instead of orchestrating flexible load shifting to absorb excess power.
+
+## 🎯 Project Goal
+
+**EnergyNex** addresses this challenge by providing a production-quality AI Decision Support System that forecasts demand spikes, recommends flexible load shifting, detects underperforming solar/wind assets, diagnoses root causes, and generates a curtailment minimisation strategy.
+it is problem-statement
+
+
+# System Architecture — EnergyNex
+
+### Smart Energy Monitoring + Grid Load Optimisation + Renewable Energy Intelligence
+
+```mermaid
+graph TD
+    A["Smart Energy Meters & Panel Telemetry"] --> B["Energy / Grid Data Layer"]
+    C["Solar & Wind Telemetry"] --> B
+    D["Weather Data (Irradiance/Temp/Wind)"] --> B
+    B --> E["Data Processing & Feature Pipeline"]
+    E --> F["AI Analytics Engine"]
+    F --> G["Demand Forecasting (RandomForest)"]
+    F --> H["Anomaly Detection (IsolationForest)"]
+    F --> I["Root Cause Feature Attribution"]
+    G --> J["Optimisation Engine"]
+    H --> J
+    I --> J
+    J --> K["Load Balancing Recommendations"]
+    J --> L["Curtailment Minimisation Plan"]
+    K --> M["Integrated AI Operator Brief"]
+    L --> M
+    M --> N["FastAPI Backend (:8000)"]
+    N --> O["React Operator Control Center (:3000)"]
+    N --> P["Streamlit Analytics Lab (:8501)"]
+    O --> Q["Grid Operator & IBM Bob AI Copilot"]
+```
+
+---
+
+## ⚡ Unified Architectural Layers
+
+1. **Telemetry & Metering Layer (`src/data_generator.py`, `src/ai/data_loader.py`):**
+   - Ingests panel-level telemetry (Main Feed, HVAC, Lighting, Server Room) with voltage, current, power factor, kW, and kWh.
+   - Ingests solar & wind renewable generation data and environmental parameters (irradiance, ambient temperature, wind speed).
+
+2. **AI & Predictive Analytics Engine (`src/ai/` & `src/`):**
+   - **Demand Forecasting (`demand_forecast.py` / `forecasting.py`):** Uses `RandomForestRegressor` to forecast 24-hour load and flag upcoming demand spikes (10.15 GW at 18:00 UTC, +16.0% spike).
+   - **Renewable Anomaly Detection (`anomaly_detection.py`):** Uses performance ratios and `IsolationForest` to detect underperforming solar/wind assets (Solar Farm A -21.7% drop).
+   - **Root Cause Analysis (`root_cause.py`):** Computes SHAP-style feature attributions for asset underperformance (52% low irradiance, 23% temperature derating).
+
+3. **Optimisation Engine (`load_optimization.py`, `curtailment.py`):**
+   - Evaluates forecasted demand, flexible loads, and renewable availability.
+   - Generates load-balancing recommendations (350 MW industrial load shifting, 120 MW EV charging reduction).
+   - Calculates curtailment minimisation strategy (absorbs 300 MW clean energy, lowering curtailment from 420 MW to 120 MW).
+
+4. **Synthesis & Brief Generation (`operator_brief.py`, `bob_copilot.py`):**
+   - Dynamically compiles demand forecasts, asset root causes, load balancing work orders, and curtailment plans into an **Integrated AI Operator Optimisation Brief**.
+   - Powers the interactive **IBM Bob AI Copilot** natural language decision support.
+
+5. **FastAPI Backend Services (`:8000`):**
+   - `GET /api/dashboard`: KPI metrics & grid stress status.
+   - `GET /api/load-forecast`: 24h demand forecast & spike alerts.
+   - `GET /api/renewable-assets`: Solar & wind farm generation performance.
+   - `GET /api/anomalies`: Flagged underperforming renewable assets.
+   - `GET /api/root-cause/{asset_id}`: Feature attribution root cause analysis.
+   - `GET /api/recommendations`: Actionable load-balancing recommendations.
+   - `GET /api/curtailment`: Curtailment minimisation plan.
+   - `POST /api/simulate`: Interactive scenario simulation.
+   - `GET /api/operator-brief`: Dynamic AI Operator Brief.
+
+6. **Frontend & Interfaces:**
+   - **React Control Center (`:3000`):** Main judge-facing production operator dashboard.
+   - **Streamlit Analytics Lab (`:8501`):** Supporting data analytics interface.
+it is architecture
