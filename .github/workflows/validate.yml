@@ -1,0 +1,54 @@
+name: Validate Submission
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate Repository Structure & submission.yaml
+        run: |
+          python -c "
+          import os, sys, yaml
+          
+          # 1. Check required root files
+          required_files = ['submission.yaml', 'README.md', 'CONTRIBUTING.md', 'requirements.txt']
+          for f in required_files:
+              if not os.path.exists(f):
+                  print(f'ERROR: Missing required file: {f}')
+                  sys.exit(1)
+              print(f'✓ Found {f}')
+              
+          # 2. Check submission.yaml schema
+          with open('submission.yaml', 'r') as f:
+              data = yaml.safe_load(f)
+              if not data or 'team' not in data or 'submission' not in data:
+                  print('ERROR: submission.yaml missing required team or submission section')
+                  sys.exit(1)
+              print('✓ submission.yaml is valid YAML and has required sections')
+              
+          # 3. Check required directories
+          required_dirs = ['src', 'docs', 'demo']
+          for d in required_dirs:
+              if not os.path.isdir(d):
+                  print(f'ERROR: Missing required directory: {d}')
+                  sys.exit(1)
+              print(f'✓ Found directory {d}')
+              
+          print('\nAll submission validation checks passed successfully!')
+          "

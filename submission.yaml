@@ -1,0 +1,27 @@
+team:
+  name: "G-EnergySense Innovators"
+  track: "AI Innovation"
+  members:
+    - name: "Lead Engineer"
+      role: "AI & Full-Stack Grid Developer"
+
+submission:
+  title: "G-EnergySense AI: Gujarat State & District-Wise Energy Intelligence & Predictive Load Optimization Copilot"
+  track: "Utility & Grid Load Optimization"
+  problem_statement: >
+    The Gujarat State Grid operates across 4 major DISCOMs (DGVCL, UGVCL, PGVCL, MGVCL) and 33 districts,
+    managing over 20,000 MW of complex industrial, urban, agricultural, and renewable load. Grid operators
+    at the Gujarat State Load Despatch Centre (SLDC) lack a unified AI operational platform to detect localized
+    city/district feeder overdraws, predict approaching state peak ceiling breaches, and generate automated
+    dispatch directives.
+  solution_summary: >
+    G-EnergySense AI delivers a state-of-the-art Command Center for Gujarat. It features live SCADA-level telemetry
+    across 10 key industrial and urban districts, Isolation Forest anomaly detection for localized feeder surges,
+    Random Forest multi-hour load forecasting, automated SLDC dispatch directives, and an IBM Bob Copilot for
+    instant operational briefings.
+  key_features:
+    - "City & District-Level SCADA Telemetry across 10 major Gujarat hubs (Surat, Ahmedabad, Vadodara, Anand, Rajkot, etc.)"
+    - "Isolation Forest Anomaly Detection flagging unscheduled industrial surges & grid frequency sagging"
+    - "Multi-Hour Gujarat State & District Demand Forecaster with 22,500 MW Peak Alert Ceiling"
+    - "Live District Demand Ranking Leaderboard comparing active power consumption across Gujarat"
+    - "Deep IBM Bob Copilot Tool Integration for District & State-wide Executive Incident Briefs"
