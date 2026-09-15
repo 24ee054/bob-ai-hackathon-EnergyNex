@@ -104,3 +104,12 @@ class GridIntelligenceTests(TestCase):
         brief_data = brief_response.json()
         self.assertIsNotNone(brief_data["markdown_brief"])
         self.assertIn("SLDC Executive", brief_data["markdown_brief"])
+
+    def test_api_root_and_swagger_docs(self):
+        root_res = self.client.get(reverse('api_root'))
+        self.assertEqual(root_res.status_code, 200)
+        self.assertIn("endpoints", root_res.json())
+
+        docs_res = self.client.get(reverse('swagger_docs'))
+        self.assertEqual(docs_res.status_code, 200)
+        self.assertContains(docs_res, "Swagger")
