@@ -43,7 +43,9 @@
 ### [1:55 - 2:35] Scene 4: Predictive Forecaster & Operational Directives
 *(Scroll down to the 4-Hour Demand Forecaster and SLDC Directives)*
 > **Speaker:**  
-> "Moving to Screen 3, our **Random Forest Demand Forecaster** models time-lagged consumption across the state to project load over the next 1, 2, 3, and 4 hours. 
+> "Moving to our predictive layer, our models are trained on historical Gujarat power grid benchmarks sourced from the **Grid Controller of India (GRID-INDIA / formerly POSOCO) and Central Electricity Authority (CEA)**.
+> 
+> Our **Random Forest & Gradient Boosting ensemble** models time-lagged consumption across the state to project load over the next 1, 2, 3, and 4 hours, achieving a **2.14% MAPE accuracy**.
 > 
 > If predicted demand threatens to cross the critical **21,500 MW state peak threshold**, the system issues automated **SLDC Operational Directives**.
 > 
