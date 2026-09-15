@@ -1,77 +1,65 @@
 # ⚡ G-EnergySense AI — Gujarat State & District Energy Intelligence Center
 
-> **Real-Time State & District Grid Telemetry • AI Regional Anomaly Engine • Multi-Hour Demand Forecasting**  
+> **Real-Time State & District Grid Telemetry • AI Alert Engine • Multi-Hour Demand Forecasting**  
 > *Developed for the IBM Bob AI Innovation Hackathon 2026*
 
 ---
 
-## 🏛️ Executive Summary
-The **Gujarat State Energy Intelligence Center (G-EnergySense AI)** is an AI-powered operational command platform designed for the **Gujarat State Load Despatch Centre (SLDC, Gotri, Vadodara)**, **GETCO**, and the state's power distribution zones (**DISCOMs**).
+## 🚀 1-Click Quick Run
 
-It monitors the electrical grid from the state level down to **10 major Gujarat Districts & Cities**:
-- **Ahmedabad Metro** (UGVCL — Urban Commercial & Industrial)
-- **Surat Industrial Corridor** (DGVCL — Textile & Diamond Industrial Hub)
-- **Vadodara Engineering Hub** (MGVCL — Chemical & Heavy Engineering)
-- **Rajkot Foundry & Auto Hub** (PGVCL — Automotive Casting)
-- **Anand & Kheda / CHARUSAT Zone** (MGVCL — Dairy, Agro & University Campus)
-- **Gandhinagar & GIFT City** (UGVCL — Fintech, IT Parks & Data Centers)
-- **Kutch & Mundra Port Hub** (PGVCL — Khavda Mega Solar/Wind & Port)
-- **Bharuch & Ankleshwar PCPIR** (DGVCL — Petrochemical & Bulk Drugs)
-- **Jamnagar Petroleum Complex** (PGVCL — Refining & Brass)
-- **Bhavnagar Ship & Marine Hub** (PGVCL — Marine Logistics & Rolling Mills)
+To start the application, simply run:
+
+```bash
+python run.py
+```
+*(On Windows, you can also just double-click **`start.bat`**)*
+
+This will automatically:
+1. Verify the database and telemetry records.
+2. Start the local server on `http://127.0.0.1:8000/`.
+3. **Automatically open the dashboard in your web browser!**
 
 ---
 
-## 🎯 Key Capabilities
-1. **LIVE TELEMETRY:** Real-time state load (~18,000 MW to ~24,000 MW), live grid frequency (50.00 Hz), and renewable mix (Solar + Wind).
-2. **DISTRICT LEADERBOARD:** Live interactive bar chart ranking all 10 Gujarat districts by current power draw.
-3. **RECENT 24-HOUR PROFILES:** Interactive Plotly multi-line curves comparing districts with red anomaly markers.
-4. **AI ANOMALY DETECTION:** Isolation Forest flagging localized feeder surges and grid frequency dips.
-5. **PREDICTIVE DEMAND FORECASTER:** Multi-hour load forecasting (1 to 4 hours) with peak threshold alerts (22,500 MW ceiling).
-6. **IBM BOB GRID COPILOT:** Instant district audits (e.g., Anand / CHARUSAT zone, Surat industrial corridor) and SLDC Executive Brief generation.
+## 🎤 2-Minute Hackathon Demo Script (What to Show Judges)
+
+| Step | Time | What to Click / Show | What to Say |
+|---|---|---|---|
+| **1. The Problem** | 30s | Show the Top 4 Metric Cards | *"Gujarat's electrical grid handles ~20,000 MW every single day. Balancing solar power with massive industrial demand across districts like Surat and Ahmedabad is a critical challenge."* |
+| **2. District Map & Rankings** | 30s | Click on the Gujarat Map markers (e.g. Anand / CHARUSAT, Surat, Vadodara) | *"Here is our live SCADA map and district leaderboard. We track all 10 major hubs in real time, from dairy & education in Anand to heavy industry in Surat."* |
+| **3. AI Alert Engine** | 30s | Point to the Active Alerts & Recommendations card | *"Our AI automatically flags abnormal power surges before transformers blow out and provides instant dispatch recommendations."* |
+| **4. IBM Bob Copilot** | 30s | Click the button `📍 Check Anand & CHARUSAT Zone` or `📋 Generate 1-Minute Executive Summary` | *"Operators can talk to IBM Bob AI Copilot in plain English to audit any district or export a clean executive incident brief in 1 click."* |
 
 ---
 
-## 🚀 Quick Start (Dual-Stack Deployment)
+## 🎯 What Does G-EnergySense AI Do?
 
-### Option A: Launch Django 6 Enterprise SLDC Portal (Recommended)
-```bash
-cd "C:\Users\ranak\Desktop\CHARUSAT\SEM 5\IBM_BOB_HACKATHON"
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py seed_gujarat_grid   # Populates 6,700+ telemetry rows & 10 hubs
-python manage.py runserver
-```
-- **Web Dashboard:** [http://127.0.0.1:8000/](http://127.0.0.1:8000/) (Interactive Leaflet Map, Live Charts & IBM Bob Copilot)
-- **Django Admin Portal:** [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
-- **Live REST API:** [http://127.0.0.1:8000/api/v1/grid/live/](http://127.0.0.1:8000/api/v1/grid/live/)
-
-### Option B: Launch Streamlit Operational Center
-```bash
-streamlit run src/app.py
-```
-- **Streamlit App:** [http://localhost:8501](http://localhost:8501)
+1. **⚡ Live State Telemetry:** Shows total power demand (~18,000 to ~22,000 MW), clean solar/wind share, and grid stability (50.00 Hz).
+2. **🗺️ 10-District Gujarat Map:** Interactive geographic map showing power draw in Ahmedabad, Surat, Vadodara, Rajkot, Anand (CHARUSAT Zone), Gandhinagar (GIFT City), Kutch, Bharuch, Jamnagar, and Bhavnagar.
+3. **🏆 District Leaderboard:** Real-time ranking of which districts are consuming the most power.
+4. **🔮 4-Hour Demand Forecaster:** Predicts electricity consumption for the next 4 hours to help prevent blackouts.
+5. **🚨 Smart Alerts & Recommendations:** Flags surges and suggests corrective actions in plain English.
+6. **🤖 IBM Bob AI Assistant:** Chatbot that answers questions about Gujarat's power grid and generates downloadable summary briefs.
 
 ---
 
 ## 🧪 Automated Testing
 
-Run the full dual-stack test suite:
+Run the automated test suite anytime:
 ```bash
-# 1. Pipeline ML & Analytical tests
-python -m unittest tests/test_grid_pipeline.py
-
-# 2. Django Model, View & REST API tests
 python manage.py test
 ```
 
 ---
 
-## 🌐 Enterprise REST API Endpoints
-
-- `GET /api/v1/grid/live/` — Live Gujarat state demand, renewable mix, and grid frequency.
-- `GET /api/v1/districts/` — Telemetry across all 10 monitored district hubs.
-- `GET /api/v1/anomalies/` — Active feeder anomalies with physical root-cause attribution.
-- `GET /api/v1/forecast/` — 1-to-4 hour forward load projections with 21,500 MW peak alerts.
-- `GET /api/v1/directives/` — Automated SLDC dispatch directives.
-- `POST /api/v1/copilot/chat/` — Conversational IBM Bob Copilot & Executive Brief generator.
+## 🏛️ Regional Grid Coverage (10 Monitored Hubs)
+- **Ahmedabad Metro** (Commercial & Metro Load)
+- **Surat Industrial** (Textile & Diamond Power Hub)
+- **Vadodara Engineering** (Chemical & Engineering Hub)
+- **Rajkot Auto Hub** (Automotive & Foundry)
+- **Anand & Kheda** (CHARUSAT University Zone, Agro & Dairy)
+- **Gandhinagar & GIFT City** (Fintech & Data Centers)
+- **Kutch & Mundra** (Khavda Mega Solar/Wind & Port)
+- **Bharuch & Ankleshwar** (Petrochemicals)
+- **Jamnagar Petroleum** (Refineries)
+- **Bhavnagar Ship & Marine** (Marine Logistics & Rolling Mills)
