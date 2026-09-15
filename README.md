@@ -1,65 +1,67 @@
-# ⚡ G-EnergySense AI — Gujarat State & District Energy Intelligence Center
+# EnergyNex — Grid Load Optimisation & Renewable Energy Advisor
 
-> **Real-Time State & District Grid Telemetry • AI Alert Engine • Multi-Hour Demand Forecasting**  
-> *Developed for the IBM Bob AI Innovation Hackathon 2026*
+> **IBM Bob AI Innovation Hackathon Project (Challenge U2 & Master Challenge)**  
+> *Tagline: Clean Energy Optimisation & Real-Time Grid Load Intelligence.*
+
+**EnergyNex** (powered by the **GridOpt AI** decision engine) is a production-quality AI decision support platform for facility managers and utility grid operators. It unifies smart energy telemetry monitoring with real-time grid load forecasting, renewable performance anomaly detection, root cause SHAP attribution, load-balancing work orders, and integrated operator optimisation briefs.
+
+$$\text{DEMAND DATA} \rightarrow \text{AI FORECAST} \rightarrow \text{DEMAND SPIKE} \rightarrow \text{GRID RISK} \rightarrow \text{LOAD BALANCING} \rightarrow \text{RENEWABLE ANOMALY} \rightarrow \text{ROOT CAUSE} \rightarrow \text{CURTAILMENT PLAN} \rightarrow \text{AI BRIEF}$$
 
 ---
 
-## 🚀 1-Click Quick Run
+## ⚡ Key Features (Challenge U2)
 
-To start the application, simply run:
+1. **Operations Overview & KPI Dashboard**
+   - Live SCADA telemetry tracking Current Load (`8.42 GW`), Forecast Peak (`10.15 GW` ⚠ `+20.5%`), Renewable Output (`5.87 GW`), Curtailment (`420 MW`), Renewable Utilisation (`91.4%`), Active Anomalies (`3`), and Grid Stress (`HIGH`).
 
-```bash
-python run.py
+2. **Random Forest Demand Forecasting**
+   - Predicts 24-hour grid load curves and triggers automated demand spike risk alerts at peak hours (e.g. `10.15 GW` at `18:00 UTC`, `+16.0%` surge).
+
+3. **AI Load-Balancing Recommendation Engine**
+   - Recommends actionable load shifts: `Shift 350 MW Flexible Industrial Load`, `Reduce 120 MW EV Charging`, and `Dispatch Unconstrained Clean Energy`.
+
+4. **Renewable Performance & Isolation Forest Anomaly Detection**
+   - Monitors Solar & Wind farms (Solar Farm A, Solar Farm B, Solar Farm C, Wind Farm A, Wind Farm B, Wind Farm C).
+   - Flagged Anomaly: `Solar Farm A` (Actual: `94 MW` vs Expected: `120 MW`, **-21.7% Deviation** -> 🔴 `UNDERPERFORMING`).
+
+5. **Explainable AI Root Cause Analysis Engine**
+   - Feature attribution breakdown per asset: `Low Solar Irradiance` (52%), `High Ambient Temp` (23%), `Inverter Degradation` (18%), `Panel Soiling` (7%).
+
+6. **Renewable Curtailment Minimisation Plan**
+   - Strategy absorbing `300 MW` clean energy into flexible industrial demand, lowering curtailment from `420 MW` to `120 MW` (**71.4% Curtailment Reduction**).
+
+7. **Interactive Optimisation Scenario Simulator**
+   - Real state-changing simulation toggle ("Before" vs "After AI Actions").
+
+8. **Integrated AI Operator Optimisation Brief Generator**
+   - Dynamic report generator combining forecast, underperforming assets, root causes, load balancing actions, and curtailment plan into a single operational brief.
+
+9. **IBM Bob AI Copilot**
+   - Data-aware natural language operator copilot capable of answering queries regarding demand surges, solar underperformance, root causes, curtailment plans, and operator briefs (`http://localhost:3000/copilot`).
+
+10. **Executive & Weekly Grid Reliability Reports**
+    - Comprehensive Daily, Weekly, Monthly, and Yearly regulatory reporting engine with SAIDI/SAIFI indexes and downloadable Markdown briefs.
+
+---
+
+## 🛠️ Technology Stack & Architecture
+
+* **Frontend UI:** React 18, Vite 5, TypeScript, Tailwind CSS, Recharts, Lucide Icons (`http://localhost:3000`)
+* **Backend API:** Python FastAPI, Uvicorn (`http://localhost:8000`)
+* **AI & Data Pipeline:** Scikit-Learn (`RandomForestRegressor`, `IsolationForest`), Pandas, NumPy
+
+---
+
+## 🚀 How to Run
+
+### 1. Run Python FastAPI Backend & AI Pipeline
+```powershell
+$env:PYTHONPATH="."; uvicorn src.ai.backend:app --host 0.0.0.0 --port 8000
 ```
-*(On Windows, you can also just double-click **`start.bat`**)*
 
-This will automatically:
-1. Verify the database and telemetry records.
-2. Start the local server on `http://127.0.0.1:8000/`.
-3. **Automatically open the dashboard in your web browser!**
-
----
-
-## 🎤 2-Minute Hackathon Demo Script (What to Show Judges)
-
-| Step | Time | What to Click / Show | What to Say |
-|---|---|---|---|
-| **1. The Problem** | 30s | Show the Top 4 Metric Cards | *"Gujarat's electrical grid handles ~20,000 MW every single day. Balancing solar power with massive industrial demand across districts like Surat and Ahmedabad is a critical challenge."* |
-| **2. District Map & Rankings** | 30s | Click on the Gujarat Map markers (e.g. Anand / CHARUSAT, Surat, Vadodara) | *"Here is our live SCADA map and district leaderboard. We track all 10 major hubs in real time, from dairy & education in Anand to heavy industry in Surat."* |
-| **3. AI Alert Engine** | 30s | Point to the Active Alerts & Recommendations card | *"Our AI automatically flags abnormal power surges before transformers blow out and provides instant dispatch recommendations."* |
-| **4. IBM Bob Copilot** | 30s | Click the button `📍 Check Anand & CHARUSAT Zone` or `📋 Generate 1-Minute Executive Summary` | *"Operators can talk to IBM Bob AI Copilot in plain English to audit any district or export a clean executive incident brief in 1 click."* |
-
----
-
-## 🎯 What Does G-EnergySense AI Do?
-
-1. **⚡ Live State Telemetry:** Shows total power demand (~18,000 to ~22,000 MW), clean solar/wind share, and grid stability (50.00 Hz).
-2. **🗺️ 10-District Gujarat Map:** Interactive geographic map showing power draw in Ahmedabad, Surat, Vadodara, Rajkot, Anand (CHARUSAT Zone), Gandhinagar (GIFT City), Kutch, Bharuch, Jamnagar, and Bhavnagar.
-3. **🏆 District Leaderboard:** Real-time ranking of which districts are consuming the most power.
-4. **🔮 4-Hour Demand Forecaster:** Predicts electricity consumption for the next 4 hours to help prevent blackouts.
-5. **🚨 Smart Alerts & Recommendations:** Flags surges and suggests corrective actions in plain English.
-6. **🤖 IBM Bob AI Assistant:** Chatbot that answers questions about Gujarat's power grid and generates downloadable summary briefs.
-
----
-
-## 🧪 Automated Testing
-
-Run the automated test suite anytime:
-```bash
-python manage.py test
+### 2. Run React Vite Operator Control Center
+```powershell
+npm run dev
 ```
 
----
-
-## 🏛️ Regional Grid Coverage (10 Monitored Hubs)
-- **Ahmedabad Metro** (Commercial & Metro Load)
-- **Surat Industrial** (Textile & Diamond Power Hub)
-- **Vadodara Engineering** (Chemical & Engineering Hub)
-- **Rajkot Auto Hub** (Automotive & Foundry)
-- **Anand & Kheda** (CHARUSAT University Zone, Agro & Dairy)
-- **Gandhinagar & GIFT City** (Fintech & Data Centers)
-- **Kutch & Mundra** (Khavda Mega Solar/Wind & Port)
-- **Bharuch & Ankleshwar** (Petrochemicals)
-- **Jamnagar Petroleum** (Refineries)
-- **Bhavnagar Ship & Marine** (Marine Logistics & Rolling Mills)
+Open **`http://localhost:3000`** in your browser.

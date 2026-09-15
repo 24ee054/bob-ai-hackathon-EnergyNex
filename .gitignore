@@ -1,12 +1,25 @@
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.env
-.venv
-env/
+
+# Environments & virtualenvs
+.venv/
 venv/
 ENV/
-.DS_Store
-*.swp
-*.bak
+env/
+
+# Environment variables
+.env
+
+# Database local storage (optional to ignore or commit depending on test need)
+*.sqlite3-journal
+
+# Node dependencies & build output
+node_modules/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/

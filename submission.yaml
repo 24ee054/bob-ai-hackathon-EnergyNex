@@ -1,27 +1,26 @@
 team:
-  name: "G-EnergySense Innovators"
-  track: "AI Innovation"
+  name: "EnergyNex Squad"
+  track: "AI" # AI | DevOps | Sustainability | Open
+  lead:
+    name: "Charmi"
+    email: "lead@example.com"
   members:
-    - name: "Lead Engineer"
-      role: "AI & Full-Stack Grid Developer"
+    - name: "Team Member 1"
+      email: "member1@example.com"
 
 submission:
-  title: "G-EnergySense AI: Gujarat State & District-Wise Energy Intelligence & Predictive Load Optimization Copilot"
-  track: "Utility & Grid Load Optimization"
+  title: "EnergyNex — Grid Load Optimisation & Renewable Energy Performance Advisor"
   problem_statement: >
-    The Gujarat State Grid operates across 4 major DISCOMs (DGVCL, UGVCL, PGVCL, MGVCL) and 33 districts,
-    managing over 20,000 MW of complex industrial, urban, agricultural, and renewable load. Grid operators
-    at the Gujarat State Load Despatch Centre (SLDC) lack a unified AI operational platform to detect localized
-    city/district feeder overdraws, predict approaching state peak ceiling breaches, and generate automated
-    dispatch directives.
+    The US curtailed ~8 TWh of clean energy in 2023 because the grid could not absorb all available renewable generation. At the same time, unexpected electricity demand spikes cause grid instability. Grid operators lack real-time decision support to balance loads and detect underperforming solar/wind assets.
   solution_summary: >
-    G-EnergySense AI delivers a state-of-the-art Command Center for Gujarat. It features live SCADA-level telemetry
-    across 10 key industrial and urban districts, Isolation Forest anomaly detection for localized feeder surges,
-    Random Forest multi-hour load forecasting, automated SLDC dispatch directives, and an IBM Bob Copilot for
-    instant operational briefings.
+    EnergyNex (powered by GridOpt AI engine) is an AI energy intelligence & grid operator decision support system that forecasts demand spikes (10.15 GW at 18:00, +16% increase), recommends load-balancing actions (shifting 350 MW industrial demand), detects underperforming solar/wind assets (Solar Farm A -21.7% drop), performs explainable root cause analysis (52% low irradiance, 23% temp), and generates an integrated AI operator brief with a 300 MW curtailment reduction plan.
   key_features:
-    - "City & District-Level SCADA Telemetry across 10 major Gujarat hubs (Surat, Ahmedabad, Vadodara, Anand, Rajkot, etc.)"
-    - "Isolation Forest Anomaly Detection flagging unscheduled industrial surges & grid frequency sagging"
-    - "Multi-Hour Gujarat State & District Demand Forecaster with 22,500 MW Peak Alert Ceiling"
-    - "Live District Demand Ranking Leaderboard comparing active power consumption across Gujarat"
-    - "Deep IBM Bob Copilot Tool Integration for District & State-wide Executive Incident Briefs"
+    - "Grid Load Demand Forecasting (Random Forest ML model predicting 24h load curve & demand spikes)"
+    - "AI Load-Balancing Recommendation Engine (350 MW industrial load shifting & charging reduction)"
+    - "Renewable Asset Anomaly Detection (Isolation Forest ML flagging underperforming solar/wind farms)"
+    - "Explainable AI Root Cause Analysis (SHAP feature attribution per asset)"
+    - "Renewable Curtailment Minimisation Plan (Absorbing 300 MW clean energy)"
+    - "Interactive Optimisation Scenario Simulator & Integrated AI Operator Brief Generator"
+    - "IBM Bob AI Copilot (Data-aware natural language assistant for grid operator queries)"
+    - "Executive & Weekly Grid Reliability Reports (Daily, Weekly, Monthly, Yearly regulatory filings)"
+
