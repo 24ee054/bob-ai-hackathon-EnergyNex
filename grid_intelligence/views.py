@@ -47,6 +47,24 @@ class DashboardView(TemplateView):
         directives = DispatchDirective.objects.select_related('district').all()[:6]
         forecasts = ForecastRecord.objects.all()[:4]
 
+        # 24-Hour Historical State Telemetry for Duck Curve
+        from django.db.models import Sum
+        history_raw = list(
+            TelemetryRecord.objects.values('timestamp')
+            .annotate(demand=Sum('demand_mw'), renewable=Sum('renewable_mw'))
+            .order_by('-timestamp')[:24]
+        )
+        history_raw.reverse()
+        history_data = [
+            {
+                "time": h["timestamp"].strftime("%H:%M"),
+                "demand": round(h["demand"], 1),
+                "renewable": round(h["renewable"], 1),
+                "net": round(max(0.0, h["demand"] - h["renewable"]), 1)
+            }
+            for h in history_raw
+        ]
+
         ctx.update({
             "latest_timestamp": latest_time,
             "total_state_demand_mw": summary["total_demand_mw"] if summary else 0.0,
@@ -59,6 +77,7 @@ class DashboardView(TemplateView):
             "dsm_exposure_lakhs": summary["dsm_penalty_lakhs"] if summary else 0.0,
             "avoided_co2_hr": round((summary["total_renewable_mw"] if summary else 0.0) * 0.82, 1),
             "districts_json": json.dumps(latest_readings),
+            "history_json": json.dumps(history_data),
             "leaderboard": leaderboard,
             "anomalies": anomalies,
             "directives": directives,
